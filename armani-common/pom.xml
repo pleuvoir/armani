@@ -9,14 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>armani-server</artifactId>
+    <artifactId>armani-common</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.github.pleuvoir</groupId>
-            <artifactId>armani-common</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-    </dependencies>
 
 </project>

@@ -1,4 +1,4 @@
-package io.github.armani;
+package io.github.armani.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -42,7 +42,7 @@ public class ArmaniClient {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         LOGGER.info("客户端启动中");
-                        ch.pipeline().addLast(new FirstClientHandler());
+                        ch.pipeline().addLast(new ClientHandler());
                     }
                 });
 

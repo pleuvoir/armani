@@ -1,4 +1,4 @@
-package io.github.armani;
+package io.github.armani.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -38,7 +38,7 @@ public class ArmaniServer {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         LOGGER.info("服务端启动中"); //当有读写事件时会被触发
-                        ch.pipeline().addLast(new FirstServerHandler());
+                        ch.pipeline().addLast(new ServerHandler());
                     }
                 });
 

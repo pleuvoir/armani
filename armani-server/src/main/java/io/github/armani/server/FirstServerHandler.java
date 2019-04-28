@@ -1,4 +1,4 @@
-package io.github.armani;
+package io.github.armani.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

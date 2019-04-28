@@ -8,6 +8,7 @@
     <modules>
         <module>armani-server</module>
         <module>armani-client</module>
+        <module>armani-common</module>
     </modules>
     <packaging>pom</packaging>
 
