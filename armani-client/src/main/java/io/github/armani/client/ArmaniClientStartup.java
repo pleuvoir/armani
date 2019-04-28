@@ -1,6 +1,11 @@
 package io.github.armani.client;
 
+import io.github.armani.common.protocol.PacketCodec;
+import io.github.armani.common.protocol.packet.request.ChatMessageRequestPacket;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -14,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -51,6 +57,8 @@ public class ArmaniClientStartup {
         bootstrap.attr(AttributeKey.newInstance("client-version"), 1);      //可以通过channel.attr()取出
 
         connectWithRetry(bootstrap, new InetSocketAddress("127.0.0.1", 8443), MAX_RETRY_CONNECT_NUM);
+
+
     }
 
 
@@ -60,6 +68,10 @@ public class ArmaniClientStartup {
             public void operationComplete(Future<? super Void> future) throws Exception {
                 if (future.isSuccess()) {
                     LOGGER.info("客户端连接成功");
+                    //此处需要强转
+                    ChannelFuture channelFuture = (ChannelFuture) future;
+                    startConsoleInput(channelFuture.channel());
+
                 } else if (retryNum == 0) {
                     LOGGER.error("尝试重连到达上限，不再进行连接。");
                 } else {
@@ -76,6 +88,21 @@ public class ArmaniClientStartup {
                 }
             }
         });
+    }
+
+    //这里必须启用新的线程来处理，否则无法接受到响应，可能是阻塞了原来的启动流程
+    private static void startConsoleInput(Channel channel) {
+        //监听控制台输入并发送到对端
+        new Thread(() -> {
+            while(true){
+                LOGGER.info("请在控制台输入要发送的消息，回车发送");
+                Scanner scanner = new Scanner(System.in);
+                String line = scanner.nextLine();
+                ChatMessageRequestPacket messageRequestPacket = ChatMessageRequestPacket.builder().message(line).build();
+                ByteBuf byteBuf = PacketCodec.INSTANCE.encode(channel.alloc(), messageRequestPacket);
+                channel.writeAndFlush(byteBuf);
+            }
+        }).start();
     }
 
 }

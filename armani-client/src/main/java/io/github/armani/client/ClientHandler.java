@@ -3,6 +3,7 @@ package io.github.armani.client;
 import io.github.armani.common.protocol.PacketCodec;
 import io.github.armani.common.protocol.packet.Packet;
 import io.github.armani.common.protocol.packet.request.LoginRequestPacket;
+import io.github.armani.common.protocol.packet.response.ChatMessageResponsetPacket;
 import io.github.armani.common.protocol.packet.response.LoginResponsePacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -48,6 +49,13 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             } else {
                 LOGGER.info("客户端失败，原因：{}", loginResponsePacket.getReason());
             }
+        }else if(packet instanceof ChatMessageResponsetPacket){
+
+            ChatMessageResponsetPacket messagePacket = (ChatMessageResponsetPacket) packet;
+
+            LOGGER.info("客户端收到新消息：{}", messagePacket.getMessage());
+
+
         }
     }
 }

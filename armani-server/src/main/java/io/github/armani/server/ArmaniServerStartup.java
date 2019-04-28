@@ -1,5 +1,6 @@
 package io.github.armani.server;
 
+import io.github.armani.common.utils.AttributeKeyConst;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -47,6 +48,9 @@ public class ArmaniServerStartup {
 
         //可以给每一条连接指定自定义属性，后续可以通过ctx.channel().attr(AttributeKey.valueOf("version")取出该属性
         serverBootstrap.childAttr(AttributeKey.newInstance("server-version"), "1.0.0");
+
+        //设置通道用户是否已登录
+        serverBootstrap.childAttr(AttributeKeyConst.LOGIN, false);
 
         bindWithRetry(serverBootstrap, DEFAULT_BIND_PORT);
     }
