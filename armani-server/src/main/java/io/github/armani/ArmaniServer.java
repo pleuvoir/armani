@@ -45,7 +45,11 @@ public class ArmaniServer {
         //给NioServerSocketChannel设置一个map，通常用不到！注意不要把他和下面那个弄混了
         serverBootstrap.attr(AttributeKey.newInstance("name"), " hello");
 
-        //可以给每一条连接指定自定义属性，后续可以通过ctx.channel().attr(AttributeKey.valueOf("version")取出该属性
+
+        /**
+         * 可以给每一条连接指定自定义属性，后续可以通过ctx.channel().attr(AttributeKey.valueOf("version")取出该属性
+         * 这里需要注意每一个属性只能newInstance一次，后续再调用newInstance会报错，可以抽取一个类将其设置为static变量，保证全局只有一个即可
+         */
         serverBootstrap.childAttr(AttributeKey.newInstance("server-version"), "1.0.0");
 
         bindWithRetry(serverBootstrap, DEFAULT_BIND_PORT);
