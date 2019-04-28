@@ -24,11 +24,11 @@ public class PacketCodec {
     /**
      * 序列化
      */
-    public ByteBuf encode(Packet packet) {
+    public ByteBuf encode(ByteBufAllocator allocator, Packet packet) {
         //序列化JAVA对象，这是实际发送的数据内容
         final byte[] bytes = SerializeFactory.DEFAULT.serialize(packet);
         //一个分配器
-        final ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
+        final ByteBuf buffer = allocator.buffer();
 
         // 魔数
         buffer.writeInt(MAGIC_NUMBER);

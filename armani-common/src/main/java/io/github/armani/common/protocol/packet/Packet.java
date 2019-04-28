@@ -1,6 +1,8 @@
 package io.github.armani.common.protocol.packet;
 
-public abstract class Packet {
+import io.github.armani.common.utils.ToJSON;
+
+public abstract class Packet implements ToJSON {
 
     public abstract Byte getCommand();
 }

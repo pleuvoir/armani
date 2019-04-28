@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 /**
  * 服务端
  */
-public class ArmaniServer {
+public class ArmaniServerStartup {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArmaniServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArmaniServerStartup.class);
 
     public static final int DEFAULT_BIND_PORT = 8443;
 

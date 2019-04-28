@@ -4,5 +4,5 @@ import io.github.armani.common.protocol.RemoteCommand;
 
 public interface RemoteResponseCommand extends RemoteCommand {
 
-    Byte LOGIN = 1;
+    Byte LOGIN = -1;
 }

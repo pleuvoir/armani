@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * 客户端
  */
-public class ArmaniClient {
+public class ArmaniClientStartup {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArmaniClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArmaniClientStartup.class);
 
     /**
      * 最大重连次数
