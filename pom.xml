@@ -5,7 +5,11 @@
     <groupId>io.github.pleuvoir</groupId>
     <artifactId>armani</artifactId>
     <version>1.0.0</version>
-    <packaging>jar</packaging>
+    <modules>
+        <module>armani-server</module>
+        <module>armani-client</module>
+    </modules>
+    <packaging>pom</packaging>
 
     <name>armani</name>
 

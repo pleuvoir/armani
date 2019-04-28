@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="false" debug="false">
     <!-- 项目名 -->
-    <property name="APP_NAME" value="auction-core" />
+    <property name="APP_NAME" value="armani" />
     <!-- 文件路径 -->
     <property name="LOG_HOME" value="logs" />
 

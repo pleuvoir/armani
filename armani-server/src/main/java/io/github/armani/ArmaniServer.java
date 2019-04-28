@@ -1,4 +1,4 @@
-package io.github.amani;
+package io.github.armani;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 /**
  * 服务端
  */
-public class NettyServer {
+public class ArmaniServer {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArmaniServer.class);
 
     public static final int DEFAULT_BIND_PORT = 8443;
 
@@ -31,9 +31,9 @@ public class NettyServer {
 
         serverBootstrap.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
-                .childOption(ChannelOption.SO_BACKLOG,  1024 )  //设置socket缓冲区队列
-                .childOption(ChannelOption.SO_KEEPALIVE,false ) //关闭2小时的长链接
-                .childOption(ChannelOption.TCP_NODELAY,true )   //关闭Nagle算法，不进行批量发送
+                .option(ChannelOption.SO_BACKLOG,  1024 )  //设置socket缓冲区队列
+                .childOption(ChannelOption.SO_KEEPALIVE,false ) //关闭2小时的长链接keepalive
+                .childOption(ChannelOption.TCP_NODELAY,true )  //关闭Nagle算法，不进行批量合并发送
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
