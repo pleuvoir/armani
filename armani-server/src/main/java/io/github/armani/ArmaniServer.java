@@ -37,16 +37,16 @@ public class ArmaniServer {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        LOGGER.info("服务端启动中");
+                        LOGGER.info("服务端启动中"); //当有读写事件时会被触发
+                        ch.pipeline().addLast(new FirstServerHandler());
                     }
                 });
 
-        //给NioServerSocketChannel设置一个map，通常用不到
-        serverBootstrap.attr(AttributeKey.newInstance("duck"), " gaga");
-        serverBootstrap.attr(AttributeKey.newInstance("project"), " armani");
+        //给NioServerSocketChannel设置一个map，通常用不到！注意不要把他和下面那个弄混了
+        serverBootstrap.attr(AttributeKey.newInstance("name"), " hello");
 
-        //可以给每一条连接指定自定义属性，后续可以通过channel.attr()取出该属性
-        serverBootstrap.childAttr(AttributeKey.newInstance("name"), "hello");
+        //可以给每一条连接指定自定义属性，后续可以通过ctx.channel().attr(AttributeKey.valueOf("version")取出该属性
+        serverBootstrap.childAttr(AttributeKey.newInstance("server-version"), "1.0.0");
 
         bindWithRetry(serverBootstrap, DEFAULT_BIND_PORT);
     }

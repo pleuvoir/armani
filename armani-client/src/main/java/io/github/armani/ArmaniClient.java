@@ -42,6 +42,7 @@ public class ArmaniClient {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         LOGGER.info("客户端启动中");
+                        ch.pipeline().addLast(new FirstClientHandler());
                     }
                 });
 
