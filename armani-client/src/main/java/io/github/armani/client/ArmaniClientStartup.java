@@ -1,9 +1,9 @@
 package io.github.armani.client;
 
-import io.github.armani.common.protocol.PacketCodec;
+import io.github.armani.common.codec.PacketDecoder;
+import io.github.armani.common.codec.PacketEncoder;
 import io.github.armani.common.protocol.packet.request.ChatMessageRequestPacket;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -48,7 +48,10 @@ public class ArmaniClientStartup {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         LOGGER.info("客户端启动中");
-                        ch.pipeline().addLast(new ClientHandler());
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(new LoginResponseHandler());
+                        ch.pipeline().addLast(new ChatMessageResponsetHandler());
+                        ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
 
@@ -99,8 +102,7 @@ public class ArmaniClientStartup {
                 Scanner scanner = new Scanner(System.in);
                 String line = scanner.nextLine();
                 ChatMessageRequestPacket messageRequestPacket = ChatMessageRequestPacket.builder().message(line).build();
-                ByteBuf byteBuf = PacketCodec.INSTANCE.encode(channel.alloc(), messageRequestPacket);
-                channel.writeAndFlush(byteBuf);
+                channel.writeAndFlush(messageRequestPacket);
             }
         }).start();
     }

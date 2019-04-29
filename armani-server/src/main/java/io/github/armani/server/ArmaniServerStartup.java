@@ -1,5 +1,7 @@
 package io.github.armani.server;
 
+import io.github.armani.common.codec.PacketDecoder;
+import io.github.armani.common.codec.PacketEncoder;
 import io.github.armani.common.utils.AttributeKeyConst;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -39,7 +41,10 @@ public class ArmaniServerStartup {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         LOGGER.info("服务端启动中"); //当有读写事件时会被触发
-                        ch.pipeline().addLast(new ServerHandler());
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(new LoginRequestHandler());
+                        ch.pipeline().addLast(new ChatMessageRequestHandler());
+                        ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
 
