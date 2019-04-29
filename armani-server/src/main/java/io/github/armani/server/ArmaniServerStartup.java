@@ -33,6 +33,7 @@ public class ArmaniServerStartup {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workGroup = new NioEventLoopGroup();
 
+        final LoginRequestHandler loginRequestHandler = new LoginRequestHandler();
         serverBootstrap.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG,  1024 )  //设置socket缓冲区队列
@@ -44,7 +45,7 @@ public class ArmaniServerStartup {
                         LOGGER.info("服务端启动中"); //当有读写事件时会被触发
                         ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 6, 4));
                         ch.pipeline().addLast(new PacketDecoder());
-                        ch.pipeline().addLast(new LoginRequestHandler());
+                        ch.pipeline().addLast(loginRequestHandler);
                         ch.pipeline().addLast(new ChatMessageRequestHandler());
                         ch.pipeline().addLast(new PacketEncoder());
                     }
