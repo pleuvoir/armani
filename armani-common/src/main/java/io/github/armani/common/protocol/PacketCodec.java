@@ -41,7 +41,7 @@ public class PacketCodec {
 
     public Packet decode(ByteBuf byteBuf) {
 
-        //跳过前4个字节（一个Int）的魔术，实际上应该校验一下
+        //跳过前4个字节（一个Int）的魔术，实际上应该在哪校验一下？
         byteBuf.skipBytes(4);
 
         //指令

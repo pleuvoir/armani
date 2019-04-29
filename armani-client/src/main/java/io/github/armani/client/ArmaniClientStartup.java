@@ -11,6 +11,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -48,6 +49,7 @@ public class ArmaniClientStartup {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         LOGGER.info("客户端启动中");
+                        ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 6, 4));
                         ch.pipeline().addLast(new PacketDecoder());
                         ch.pipeline().addLast(new LoginResponseHandler());
                         ch.pipeline().addLast(new ChatMessageResponsetHandler());
@@ -60,7 +62,6 @@ public class ArmaniClientStartup {
         bootstrap.attr(AttributeKey.newInstance("client-version"), 1);      //可以通过channel.attr()取出
 
         connectWithRetry(bootstrap, new InetSocketAddress("127.0.0.1", 8443), MAX_RETRY_CONNECT_NUM);
-
 
     }
 
