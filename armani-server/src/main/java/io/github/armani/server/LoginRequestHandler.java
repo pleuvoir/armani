@@ -25,17 +25,22 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LoginRequestPacket login) throws Exception {
         LOGGER.info("处理登录请求。入参：{}", login.toJSON());
+
+        LoginResponsePacket loginResponsePacket = new LoginResponsePacket();
+
         if (login.getUsername().equals("pleuvoir") && login.getPassword().equals("数字电路")) {
             LOGGER.info("登录成功，欢迎帅气的你，当前登录用户数：{}", online.incrementAndGet());
             LoginUtil.markLogin(ctx.channel());
 
+            loginResponsePacket.setReason("登录成功，欢迎帅气的你");
+            loginResponsePacket.setSuccess(true);
+            ctx.channel().writeAndFlush(loginResponsePacket);
+
         } else {
             String reason = "就是不让你上";
             LOGGER.info("登录失败，原因：{}", reason);
-
-            LoginResponsePacket loginResponsePacket = new LoginResponsePacket();
+            loginResponsePacket.setSuccess(false);
             loginResponsePacket.setReason(reason);
-
             //最后会由加码器加码
             ctx.channel().writeAndFlush(loginResponsePacket);
         }

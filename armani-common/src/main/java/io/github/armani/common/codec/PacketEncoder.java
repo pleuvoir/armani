@@ -1,6 +1,6 @@
 package io.github.armani.common.codec;
 
-import io.github.armani.common.protocol.PacketCodec;
+import io.github.armani.common.protocol.PacketCodecHelper;
 import io.github.armani.common.protocol.packet.Packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,7 +14,7 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet msg, ByteBuf out) throws Exception {
-        PacketCodec.INSTANCE.encode(out, msg);
+        PacketCodecHelper.INSTANCE.encode(out, msg);
     }
 
 }

@@ -10,9 +10,9 @@ import io.netty.buffer.ByteBuf;
 /**
  * Packet编解码器
  */
-public class PacketCodec {
+public class PacketCodecHelper {
 
-    public static final PacketCodec INSTANCE = new PacketCodec();
+    public static final PacketCodecHelper INSTANCE = new PacketCodecHelper();
 
     /**
      * 魔法数字

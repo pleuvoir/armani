@@ -1,6 +1,6 @@
 package io.github.armani.common.codec;
 
-import io.github.armani.common.protocol.PacketCodec;
+import io.github.armani.common.protocol.PacketCodecHelper;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -17,7 +17,7 @@ public class PacketDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        out.add(PacketCodec.INSTANCE.decode(in));
+        out.add(PacketCodecHelper.INSTANCE.decode(in));
     }
 
 }
