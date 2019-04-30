@@ -1,8 +1,7 @@
-package io.github.armani.server;
+package io.github.armani.server.handler;
 
 import io.github.armani.common.protocol.packet.request.ChatMessageRequestPacket;
 import io.github.armani.common.protocol.packet.response.ChatMessageResponsetPacket;
-import io.github.armani.common.utils.SessionMember;
 import io.github.armani.common.utils.SessionUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -26,20 +25,24 @@ public class ChatMessageRequestHandler extends SimpleChannelInboundHandler<ChatM
             return;
         }
 
+        if (chat.getFromUserId().equals(chat.getToUserId())) {
+            ctx.channel().writeAndFlush(ChatMessageResponsetPacket.builder().message("不能给自己发消息").build());
+            return;
+        }
+
+
         LOGGER.info("收到新消息：{}", chat.toJSON());
 
         ChatMessageResponsetPacket replyPacket = new ChatMessageResponsetPacket();
         String toUserId = chat.getToUserId();
 
         if (SessionUtil.isLogin(toUserId)) {
-
             Channel channel = SessionUtil.getChannel(toUserId);
             replyPacket.setMessage(chat.getMessage());
             channel.writeAndFlush(replyPacket); //发给接收方的通道
 
         } else {
-            SessionMember member = SessionUtil.getMember(toUserId);
-            LOGGER.info("{}不在线，消息丢弃。", member.getUsername());
+            LOGGER.info("{}不在线，消息丢弃。", toUserId);
         }
     }
 

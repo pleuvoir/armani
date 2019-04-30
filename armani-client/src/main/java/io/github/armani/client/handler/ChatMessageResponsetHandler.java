@@ -1,4 +1,4 @@
-package io.github.armani.client;
+package io.github.armani.client.handler;
 
 import io.github.armani.common.protocol.packet.response.ChatMessageResponsetPacket;
 import io.netty.channel.ChannelHandlerContext;

@@ -1,4 +1,4 @@
-package io.github.armani.server;
+package io.github.armani.server.handler;
 
 import io.github.armani.common.protocol.packet.request.LoginRequestPacket;
 import io.github.armani.common.protocol.packet.response.LoginResponsePacket;
@@ -34,31 +34,37 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
 
         String userId = login.getUserId();
         String username = login.getUsername();
-        if (userId.startsWith("1")) {
 
-            LOGGER.info("登录成功，欢迎帅气的[{}]，当前登录用户数：{}", username, online.incrementAndGet());
-
-            channel.attr(AttributeKeyConst.USER_ID).set(userId);
-
-            SessionUtil.bindSessionMember(SessionMember.builder().userId(userId).username(username).build(), channel);
-
-            loginResponsePacket.setReason("登录成功，欢迎帅气的你");
-            loginResponsePacket.setSuccess(true);
-            channel.writeAndFlush(loginResponsePacket);
-
-        } else {
-            String reason = "就是不让你上";
+        if (SessionUtil.isLogin(userId)) {
+            String reason = userId + "已经登录过了，请勿重复登录!";
             LOGGER.info("登录失败，原因：{}", reason);
             loginResponsePacket.setSuccess(false);
             loginResponsePacket.setReason(reason);
-            //最后会由加码器加码
             channel.writeAndFlush(loginResponsePacket);
+            return;
         }
+
+        LOGGER.info("[{}]登录验证通过，当前登录用户数：{}", username, online.incrementAndGet());
+
+        channel.attr(AttributeKeyConst.USER_ID).set(userId);
+
+        SessionUtil.bindSessionMember(SessionMember.builder().userId(userId).username(username).build(), channel);
+
+        loginResponsePacket.setReason("登录成功，欢迎帅气的[" + userId + "]");
+        loginResponsePacket.setSuccess(true);
+        channel.writeAndFlush(loginResponsePacket);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        SessionMember member = SessionUtil.getMember(ctx.channel().attr(AttributeKeyConst.USER_ID).get());
-        LOGGER.info("[{}]下线了，当前登录用户数：{}", member.getUsername(), online.decrementAndGet());
+
+        String userIdOnCurrentChannel = ctx.channel().attr(AttributeKeyConst.USER_ID).get();
+        if (userIdOnCurrentChannel == null) {
+            LOGGER.info("未登陆用户连接断开，当前登录用户数：{}", online.decrementAndGet());
+        } else {
+            SessionMember member = SessionUtil.getMember(userIdOnCurrentChannel);
+            SessionUtil.unbindSessionMember(member, ctx.channel());
+            LOGGER.info("[{}]下线了，当前登录用户数：{}", member.getUsername(), online.decrementAndGet());
+        }
     }
 }

@@ -1,6 +1,7 @@
 package io.github.armani.common.utils;
 
 import io.netty.channel.Channel;
+import io.netty.channel.group.ChannelGroup;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +12,7 @@ public class SessionUtil {
 
     public static Map<String /*userId*/, SessionMember /*登录用户*/> memberMap = new ConcurrentHashMap<>();
 
+    private static final Map<String /*群组编号*/, ChannelGroup/*聚合发送*/> groupIdChannelGroupMap = new ConcurrentHashMap<>();
 
     /**
      * 绑定登录用户，初始化登录用户session
@@ -18,6 +20,20 @@ public class SessionUtil {
     public static void bindSessionMember(SessionMember member, Channel channel) {
         memberMap.put(member.getUserId(), member);
         sessionMemberChannelMap.put(member, channel);
+    }
+
+    /**
+     * 绑定群组
+     */
+    public static void bindChannelGroup(String groupId, ChannelGroup group) {
+        groupIdChannelGroupMap.put(groupId, group);
+    }
+
+    /**
+     * 获取群组
+     */
+    public static ChannelGroup getChannelGroup(String groupId) {
+        return groupIdChannelGroupMap.get(groupId);
     }
 
     /**
