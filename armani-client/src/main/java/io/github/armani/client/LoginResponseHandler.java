@@ -1,6 +1,5 @@
 package io.github.armani.client;
 
-import io.github.armani.common.protocol.packet.request.LoginRequestPacket;
 import io.github.armani.common.protocol.packet.response.LoginResponsePacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -17,14 +16,14 @@ public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginRespo
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.info("客户端开始登陆 ..");
-
-        LoginRequestPacket requestPacket = LoginRequestPacket.builder()
-                .userId("100000000000645")
-                .username("pleuvoir")
-                .password("数字电路").build();
-
-        ctx.channel().writeAndFlush(requestPacket);
+//        LOGGER.info("客户端开始登陆 ..");
+//
+//        LoginRequestPacket requestPacket = LoginRequestPacket.builder()
+//                .userId("100000000000645")
+//                .username("pleuvoir")
+//                .password("数字电路").build();
+//
+//        ctx.channel().writeAndFlush(requestPacket);
     }
 
     @Override

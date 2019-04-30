@@ -3,6 +3,8 @@ package io.github.armani.client;
 import io.github.armani.common.codec.PacketDecoder;
 import io.github.armani.common.codec.PacketEncoder;
 import io.github.armani.common.protocol.packet.request.ChatMessageRequestPacket;
+import io.github.armani.common.protocol.packet.request.LoginRequestPacket;
+import io.github.armani.common.utils.AttributeKeyConst;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -12,7 +14,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
@@ -58,8 +59,7 @@ public class ArmaniClientStartup {
                 });
 
 
-        bootstrap.attr(AttributeKey.newInstance("client-name"), "armani-client"); //给通道设置一个map保存自定义属性
-        bootstrap.attr(AttributeKey.newInstance("client-version"), 1);      //可以通过channel.attr()取出
+        bootstrap.attr(AttributeKeyConst.USER_ID, null);
 
         connectWithRetry(bootstrap, new InetSocketAddress("127.0.0.1", 8443), MAX_RETRY_CONNECT_NUM);
 
@@ -98,14 +98,43 @@ public class ArmaniClientStartup {
     private static void startConsoleInput(Channel channel) {
         //监听控制台输入并发送到对端
         new Thread(() -> {
-            while(true){
-                LOGGER.info("请在控制台输入要发送的消息，回车发送");
-                Scanner scanner = new Scanner(System.in);
+
+            LOGGER.info("客户端开始登陆 ..");
+            Scanner scanner = new Scanner(System.in);
+            LOGGER.info("请输入userId ..");
+            String userId = scanner.nextLine();
+            LOGGER.info("请输入username ..");
+            String username = scanner.nextLine();
+
+            login(userId, username, channel);
+            while (true) {
+
+                LOGGER.info("请在控制台输入要发送的消息，回车发送，格式 123-你好");
                 String line = scanner.nextLine();
-                ChatMessageRequestPacket messageRequestPacket = ChatMessageRequestPacket.builder().message(line).build();
-                channel.writeAndFlush(messageRequestPacket);
+                String[] split = line.split("-");
+                sendMessage(userId, split[0], split[1], channel);
             }
         }).start();
+    }
+
+
+    private static void login(String userId, String username, Channel channel) {
+        LoginRequestPacket requestPacket = LoginRequestPacket.builder()
+                .userId(userId)
+                .username(username)
+                .password("数字电路").build();
+        channel.writeAndFlush(requestPacket);
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+        }
+        LOGGER.info("客户端开始登陆 3 秒后，如果成功开始私聊吧 ..");
+    }
+
+    private static void sendMessage(String fromUserId, String toUserId, String message, Channel channel) {
+        LOGGER.info("[{}]发消息给[{}]", fromUserId, toUserId);
+        ChatMessageRequestPacket chat = ChatMessageRequestPacket.builder().fromUserId(fromUserId).toUserId(toUserId).message(message).build();
+        channel.writeAndFlush(chat);
     }
 
 }

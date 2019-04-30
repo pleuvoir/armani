@@ -2,7 +2,9 @@ package io.github.armani.server;
 
 import io.github.armani.common.protocol.packet.request.ChatMessageRequestPacket;
 import io.github.armani.common.protocol.packet.response.ChatMessageResponsetPacket;
-import io.github.armani.common.utils.LoginUtil;
+import io.github.armani.common.utils.SessionMember;
+import io.github.armani.common.utils.SessionUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -19,19 +21,26 @@ public class ChatMessageRequestHandler extends SimpleChannelInboundHandler<ChatM
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ChatMessageRequestPacket chat) throws Exception {
 
-
-        if (!LoginUtil.isLogin(ctx.channel())) {
+        if (!SessionUtil.isLogin(chat.getFromUserId())) {
             ctx.channel().writeAndFlush(ChatMessageResponsetPacket.builder().message("小老弟你怎么回事没登录啊..").build());
             return;
         }
 
-        LOGGER.info("收到新消息：{}", chat.getMessage());
+        LOGGER.info("收到新消息：{}", chat.toJSON());
 
-        ChatMessageResponsetPacket replyPacket = ChatMessageResponsetPacket.builder()
-                .message("【来自大鹅的回复】：".concat(chat.getMessage())).build();
+        ChatMessageResponsetPacket replyPacket = new ChatMessageResponsetPacket();
+        String toUserId = chat.getToUserId();
 
-        //最后会由加码器加码
-        ctx.channel().writeAndFlush(replyPacket);
+        if (SessionUtil.isLogin(toUserId)) {
+
+            Channel channel = SessionUtil.getChannel(toUserId);
+            replyPacket.setMessage(chat.getMessage());
+            channel.writeAndFlush(replyPacket); //发给接收方的通道
+
+        } else {
+            SessionMember member = SessionUtil.getMember(toUserId);
+            LOGGER.info("{}不在线，消息丢弃。", member.getUsername());
+        }
     }
 
 }

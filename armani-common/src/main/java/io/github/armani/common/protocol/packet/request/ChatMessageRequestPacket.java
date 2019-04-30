@@ -10,6 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 public class ChatMessageRequestPacket extends Packet implements RemoteRequestCommand {
 
+    private String fromUserId;
+    private String toUserId;
     private String message;
 
     @Override

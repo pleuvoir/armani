@@ -2,7 +2,10 @@ package io.github.armani.server;
 
 import io.github.armani.common.protocol.packet.request.LoginRequestPacket;
 import io.github.armani.common.protocol.packet.response.LoginResponsePacket;
-import io.github.armani.common.utils.LoginUtil;
+import io.github.armani.common.utils.AttributeKeyConst;
+import io.github.armani.common.utils.SessionMember;
+import io.github.armani.common.utils.SessionUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -26,15 +29,22 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
     protected void channelRead0(ChannelHandlerContext ctx, LoginRequestPacket login) throws Exception {
         LOGGER.info("处理登录请求。入参：{}", login.toJSON());
 
+        final Channel channel = ctx.channel();
         LoginResponsePacket loginResponsePacket = new LoginResponsePacket();
 
-        if (login.getUsername().equals("pleuvoir") && login.getPassword().equals("数字电路")) {
-            LOGGER.info("登录成功，欢迎帅气的你，当前登录用户数：{}", online.incrementAndGet());
-            LoginUtil.markLogin(ctx.channel());
+        String userId = login.getUserId();
+        String username = login.getUsername();
+        if (userId.startsWith("1")) {
+
+            LOGGER.info("登录成功，欢迎帅气的[{}]，当前登录用户数：{}", username, online.incrementAndGet());
+
+            channel.attr(AttributeKeyConst.USER_ID).set(userId);
+
+            SessionUtil.bindSessionMember(SessionMember.builder().userId(userId).username(username).build(), channel);
 
             loginResponsePacket.setReason("登录成功，欢迎帅气的你");
             loginResponsePacket.setSuccess(true);
-            ctx.channel().writeAndFlush(loginResponsePacket);
+            channel.writeAndFlush(loginResponsePacket);
 
         } else {
             String reason = "就是不让你上";
@@ -42,12 +52,13 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
             loginResponsePacket.setSuccess(false);
             loginResponsePacket.setReason(reason);
             //最后会由加码器加码
-            ctx.channel().writeAndFlush(loginResponsePacket);
+            channel.writeAndFlush(loginResponsePacket);
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.info("用户下线了，当前登录用户数：{}", online.decrementAndGet());
+        SessionMember member = SessionUtil.getMember(ctx.channel().attr(AttributeKeyConst.USER_ID).get());
+        LOGGER.info("[{}]下线了，当前登录用户数：{}", member.getUsername(), online.decrementAndGet());
     }
 }
