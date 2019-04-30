@@ -23,6 +23,8 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginRequestHandler.class);
 
+    public static final LoginRequestHandler INSTANCE = new LoginRequestHandler();
+
     private AtomicLong online = new AtomicLong();
 
     @Override
@@ -46,9 +48,11 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
 
         LOGGER.info("[{}]登录验证通过，当前登录用户数：{}", username, online.incrementAndGet());
 
-        channel.attr(AttributeKeyConst.USER_ID).set(userId);
 
-        SessionUtil.bindSessionMember(SessionMember.builder().userId(userId).username(username).build(), channel);
+        SessionMember member = SessionMember.builder().userId(userId).username(username).build();
+        channel.attr(AttributeKeyConst.SESSION_MEMBER).set(member);
+
+        SessionUtil.bindSessionMember(member, channel);
 
         loginResponsePacket.setReason("登录成功，欢迎帅气的[" + userId + "]");
         loginResponsePacket.setSuccess(true);
@@ -58,13 +62,12 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
-        String userIdOnCurrentChannel = ctx.channel().attr(AttributeKeyConst.USER_ID).get();
-        if (userIdOnCurrentChannel == null) {
-            LOGGER.info("未登陆用户连接断开，当前登录用户数：{}", online.decrementAndGet());
-        } else {
-            SessionMember member = SessionUtil.getMember(userIdOnCurrentChannel);
+        SessionMember member = ctx.channel().attr(AttributeKeyConst.SESSION_MEMBER).get();
+        if (member.isNotNull()) {
             SessionUtil.unbindSessionMember(member, ctx.channel());
             LOGGER.info("[{}]下线了，当前登录用户数：{}", member.getUsername(), online.decrementAndGet());
+        } else {
+            LOGGER.info("未登陆用户连接断开");
         }
     }
 }

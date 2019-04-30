@@ -1,15 +1,19 @@
 package io.github.armani.client.handler;
 
 import io.github.armani.common.protocol.packet.response.LoginResponsePacket;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ChannelHandler.Sharable
 public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginResponsePacket> {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(LoginResponseHandler.class);
 
+
+    public static final LoginResponseHandler INSTANCE = new LoginResponseHandler();
 
     /**
      * 一连接成功就发起登录

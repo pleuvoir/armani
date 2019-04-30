@@ -7,7 +7,5 @@ import io.netty.util.AttributeKey;
  */
 public class AttributeKeyConst {
 
-    public static final AttributeKey<Boolean> LOGIN = AttributeKey.newInstance("login");
-
-    public static final AttributeKey<String> USER_ID = AttributeKey.newInstance("user_id");
+    public static final AttributeKey<SessionMember> SESSION_MEMBER = AttributeKey.newInstance("session_member");
 }

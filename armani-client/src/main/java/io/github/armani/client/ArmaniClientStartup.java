@@ -7,7 +7,6 @@ import io.github.armani.client.handler.GroupMessageResponseHandler;
 import io.github.armani.client.handler.LoginResponseHandler;
 import io.github.armani.common.codec.PacketDecoder;
 import io.github.armani.common.codec.PacketEncoder;
-import io.github.armani.common.utils.AttributeKeyConst;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -53,15 +52,13 @@ public class ArmaniClientStartup {
                         LOGGER.info("客户端启动中");
                         ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 6, 4));
                         ch.pipeline().addLast(new PacketDecoder());
-                        ch.pipeline().addLast(new LoginResponseHandler());
-                        ch.pipeline().addLast(new ChatMessageResponsetHandler());
-                        ch.pipeline().addLast(new CreateGroupResponseHandler());
-                        ch.pipeline().addLast(new GroupMessageResponseHandler());
+                        ch.pipeline().addLast(LoginResponseHandler.INSTANCE);
+                        ch.pipeline().addLast(ChatMessageResponsetHandler.INSTANCE);
+                        ch.pipeline().addLast(CreateGroupResponseHandler.INSTANCE);
+                        ch.pipeline().addLast(GroupMessageResponseHandler.INSTANCE);
                         ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
-
-        bootstrap.attr(AttributeKeyConst.USER_ID, null);
 
         connectWithRetry(bootstrap, new InetSocketAddress("127.0.0.1", 8443), MAX_RETRY_CONNECT_NUM);
     }

@@ -1,9 +1,9 @@
 package io.github.armani.server.handler;
 
 import io.github.armani.common.protocol.packet.request.CreateGroupRequestPacket;
-import io.github.armani.common.protocol.packet.response.ChatMessageResponsetPacket;
 import io.github.armani.common.protocol.packet.response.CreateGroupResponsePacket;
 import io.github.armani.common.utils.SessionUtil;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.DefaultChannelGroup;
@@ -12,20 +12,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-
+@ChannelHandler.Sharable
 public class CreateGroupRequestHandler extends SimpleChannelInboundHandler<CreateGroupRequestPacket> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateGroupRequestHandler.class);
+
+    public static final CreateGroupRequestHandler INSTANCE = new CreateGroupRequestHandler();
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, CreateGroupRequestPacket group) throws Exception {
 
         String fromUserId = group.getFromUserId();
         LOGGER.info("收到[{}]的创建群聊请求：{}", fromUserId, group.toJSON());
-        if (!SessionUtil.isLogin(fromUserId)) {
-            ctx.channel().writeAndFlush(ChatMessageResponsetPacket.builder().message("小老弟你怎么回事没登录啊..").build());
-            return;
-        }
 
         //聚合发送
         //给每个客户端发送拉群通知  使用通道组操作 给每个通道发消息

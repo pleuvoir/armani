@@ -3,10 +3,8 @@ package io.github.armani.server;
 import io.github.armani.common.codec.PacketDecoder;
 import io.github.armani.common.codec.PacketEncoder;
 import io.github.armani.common.utils.AttributeKeyConst;
-import io.github.armani.server.handler.ChatMessageRequestHandler;
-import io.github.armani.server.handler.CreateGroupRequestHandler;
-import io.github.armani.server.handler.GroupMessageRequestHandler;
-import io.github.armani.server.handler.LoginRequestHandler;
+import io.github.armani.common.utils.SessionMember;
+import io.github.armani.server.handler.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -37,7 +35,6 @@ public class ArmaniServerStartup {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workGroup = new NioEventLoopGroup();
 
-        final LoginRequestHandler loginRequestHandler = new LoginRequestHandler();
         serverBootstrap.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG,  1024 )  //设置socket缓冲区队列
@@ -49,10 +46,11 @@ public class ArmaniServerStartup {
                         LOGGER.info("服务端有读写事件时触发"); //当有读写事件时会被触发
                         ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 6, 4));
                         ch.pipeline().addLast(new PacketDecoder());
-                        ch.pipeline().addLast(loginRequestHandler);
-                        ch.pipeline().addLast(new ChatMessageRequestHandler());
-                        ch.pipeline().addLast(new CreateGroupRequestHandler());
-                        ch.pipeline().addLast(new GroupMessageRequestHandler());
+                        ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
+                        ch.pipeline().addLast(AuthHandler.INSTANCE);
+                        ch.pipeline().addLast(ChatMessageRequestHandler.INSTANCE);
+                        ch.pipeline().addLast(CreateGroupRequestHandler.INSTANCE);
+                        ch.pipeline().addLast(GroupMessageRequestHandler.INSTANCE);
                         ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
@@ -64,7 +62,7 @@ public class ArmaniServerStartup {
         serverBootstrap.childAttr(AttributeKey.newInstance("server-version"), "1.0.0");
 
         //设置通道用户是否已登录
-        serverBootstrap.childAttr(AttributeKeyConst.LOGIN, false);
+        serverBootstrap.childAttr(AttributeKeyConst.SESSION_MEMBER, SessionMember.EMPTY);
 
         bindWithRetry(serverBootstrap, DEFAULT_BIND_PORT);
     }

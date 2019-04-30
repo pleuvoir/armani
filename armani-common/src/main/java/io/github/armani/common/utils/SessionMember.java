@@ -1,8 +1,7 @@
 package io.github.armani.common.utils;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import io.netty.util.internal.StringUtil;
+import lombok.*;
 
 /**
  * 登录用户
@@ -10,9 +9,16 @@ import lombok.EqualsAndHashCode;
 @Data
 @Builder
 @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class SessionMember {
+
+    public static SessionMember EMPTY = new SessionMember();
 
     private String username;
     private String userId;
 
+    public boolean isNotNull() {
+        return !StringUtil.isNullOrEmpty(userId);
+    }
 }
