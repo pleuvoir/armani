@@ -1,4 +1,4 @@
-package io.github.armani.common.protocol.packet.request;
+package io.github.armani.common.protocol.packet.response;
 
 import io.github.armani.common.protocol.packet.Packet;
 import lombok.*;
@@ -8,14 +8,13 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessageRequestPacket extends Packet implements RemoteRequestCommand {
+public class GroupMessageResponsetPacket extends Packet implements RemoteResponseCommand {
 
-    private String fromUserId;
-    private String toUserId;
+    private String groupId;
     private String message;
 
     @Override
     public Byte getCommand() {
-        return ONE_2_ONE_CHAT;
+        return GROUP_CHAT;
     }
 }

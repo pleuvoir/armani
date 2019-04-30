@@ -1,17 +1,20 @@
 package io.github.armani.client;
 
-import io.github.armani.common.protocol.PacketCodec;
-import io.github.armani.common.protocol.packet.request.ChatMessageRequestPacket;
+import io.github.armani.client.command.ConsoleCommandManager;
+import io.github.armani.client.handler.ChatMessageResponsetHandler;
+import io.github.armani.client.handler.CreateGroupResponseHandler;
+import io.github.armani.client.handler.GroupMessageResponseHandler;
+import io.github.armani.client.handler.LoginResponseHandler;
+import io.github.armani.common.codec.PacketDecoder;
+import io.github.armani.common.codec.PacketEncoder;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.AttributeKey;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
@@ -19,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -48,19 +50,18 @@ public class ArmaniClientStartup {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         LOGGER.info("客户端启动中");
-                        ch.pipeline().addLast(new ClientHandler());
+                        ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 6, 4));
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(LoginResponseHandler.INSTANCE);
+                        ch.pipeline().addLast(ChatMessageResponsetHandler.INSTANCE);
+                        ch.pipeline().addLast(CreateGroupResponseHandler.INSTANCE);
+                        ch.pipeline().addLast(GroupMessageResponseHandler.INSTANCE);
+                        ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
 
-
-        bootstrap.attr(AttributeKey.newInstance("client-name"), "armani-client"); //给通道设置一个map保存自定义属性
-        bootstrap.attr(AttributeKey.newInstance("client-version"), 1);      //可以通过channel.attr()取出
-
         connectWithRetry(bootstrap, new InetSocketAddress("127.0.0.1", 8443), MAX_RETRY_CONNECT_NUM);
-
-
     }
-
 
     private static void connectWithRetry(Bootstrap bootstrap, SocketAddress remoteAddress, int retryNum) {
         bootstrap.connect(remoteAddress).addListener(new GenericFutureListener<Future<? super Void>>() {
@@ -70,7 +71,8 @@ public class ArmaniClientStartup {
                     LOGGER.info("客户端连接成功");
                     //此处需要强转
                     ChannelFuture channelFuture = (ChannelFuture) future;
-                    startConsoleInput(channelFuture.channel());
+
+                    ConsoleCommandManager.INSTANCE.startConsoleInput(channelFuture.channel());
 
                 } else if (retryNum == 0) {
                     LOGGER.error("尝试重连到达上限，不再进行连接。");
@@ -90,19 +92,5 @@ public class ArmaniClientStartup {
         });
     }
 
-    //这里必须启用新的线程来处理，否则无法接受到响应，可能是阻塞了原来的启动流程
-    private static void startConsoleInput(Channel channel) {
-        //监听控制台输入并发送到对端
-        new Thread(() -> {
-            while(true){
-                LOGGER.info("请在控制台输入要发送的消息，回车发送");
-                Scanner scanner = new Scanner(System.in);
-                String line = scanner.nextLine();
-                ChatMessageRequestPacket messageRequestPacket = ChatMessageRequestPacket.builder().message(line).build();
-                ByteBuf byteBuf = PacketCodec.INSTANCE.encode(channel.alloc(), messageRequestPacket);
-                channel.writeAndFlush(byteBuf);
-            }
-        }).start();
-    }
 
 }

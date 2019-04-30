@@ -1,6 +1,10 @@
 package io.github.armani.server;
 
+import io.github.armani.common.codec.PacketDecoder;
+import io.github.armani.common.codec.PacketEncoder;
 import io.github.armani.common.utils.AttributeKeyConst;
+import io.github.armani.common.utils.SessionMember;
+import io.github.armani.server.handler.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -8,6 +12,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -38,8 +43,15 @@ public class ArmaniServerStartup {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        LOGGER.info("服务端启动中"); //当有读写事件时会被触发
-                        ch.pipeline().addLast(new ServerHandler());
+                        LOGGER.info("服务端有读写事件时触发"); //当有读写事件时会被触发
+                        ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 6, 4));
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
+                        ch.pipeline().addLast(AuthHandler.INSTANCE);
+                        ch.pipeline().addLast(ChatMessageRequestHandler.INSTANCE);
+                        ch.pipeline().addLast(CreateGroupRequestHandler.INSTANCE);
+                        ch.pipeline().addLast(GroupMessageRequestHandler.INSTANCE);
+                        ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
 
@@ -50,7 +62,7 @@ public class ArmaniServerStartup {
         serverBootstrap.childAttr(AttributeKey.newInstance("server-version"), "1.0.0");
 
         //设置通道用户是否已登录
-        serverBootstrap.childAttr(AttributeKeyConst.LOGIN, false);
+        serverBootstrap.childAttr(AttributeKeyConst.SESSION_MEMBER, SessionMember.EMPTY);
 
         bindWithRetry(serverBootstrap, DEFAULT_BIND_PORT);
     }

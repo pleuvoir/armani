@@ -5,15 +5,14 @@ import io.github.armani.common.protocol.packet.PacketFactory;
 import io.github.armani.common.protocol.serialize.SerializeFactory;
 import io.github.armani.common.protocol.serialize.Serializer;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 
 
 /**
  * Packet编解码器
  */
-public class PacketCodec {
+public class PacketCodecHelper {
 
-    public static final PacketCodec INSTANCE = new PacketCodec();
+    public static final PacketCodecHelper INSTANCE = new PacketCodecHelper();
 
     /**
      * 魔法数字
@@ -24,11 +23,9 @@ public class PacketCodec {
     /**
      * 序列化
      */
-    public ByteBuf encode(ByteBufAllocator allocator, Packet packet) {
+    public void encode(ByteBuf buffer, Packet packet) {
         //序列化JAVA对象，这是实际发送的数据内容
         final byte[] bytes = SerializeFactory.DEFAULT.serialize(packet);
-        //一个分配器
-        final ByteBuf buffer = allocator.buffer();
 
         // 魔数
         buffer.writeInt(MAGIC_NUMBER);
@@ -40,12 +37,11 @@ public class PacketCodec {
         buffer.writeInt(bytes.length);
         // 内容
         buffer.writeBytes(bytes);
-        return buffer;
     }
 
     public Packet decode(ByteBuf byteBuf) {
 
-        //跳过前4个字节（一个Int）的魔术，实际上应该校验一下
+        //跳过前4个字节（一个Int）的魔术，实际上应该在哪校验一下？
         byteBuf.skipBytes(4);
 
         //指令

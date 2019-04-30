@@ -3,19 +3,23 @@ package io.github.armani.common.protocol.packet.request;
 import io.github.armani.common.protocol.packet.Packet;
 import lombok.*;
 
+import java.util.List;
+
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessageRequestPacket extends Packet implements RemoteRequestCommand {
+public class CreateGroupRequestPacket extends Packet implements RemoteRequestCommand {
+
+    private List<String> userIdList;
 
     private String fromUserId;
-    private String toUserId;
-    private String message;
 
     @Override
     public Byte getCommand() {
-        return ONE_2_ONE_CHAT;
+        return CREATE_GROUP;
     }
+
+
 }
