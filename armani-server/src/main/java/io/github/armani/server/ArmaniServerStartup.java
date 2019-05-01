@@ -1,10 +1,19 @@
 package io.github.armani.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.github.armani.common.codec.PacketDecoder;
 import io.github.armani.common.codec.PacketEncoder;
+import io.github.armani.common.handler.ArmaniIdleStateHandler;
 import io.github.armani.common.utils.AttributeKeyConst;
 import io.github.armani.common.utils.SessionMember;
-import io.github.armani.server.handler.*;
+import io.github.armani.server.handler.AuthHandler;
+import io.github.armani.server.handler.ChatMessageRequestHandler;
+import io.github.armani.server.handler.CreateGroupRequestHandler;
+import io.github.armani.server.handler.GroupMessageRequestHandler;
+import io.github.armani.server.handler.HeartRequestHandler;
+import io.github.armani.server.handler.LoginRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -16,8 +25,6 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 服务端
@@ -43,10 +50,11 @@ public class ArmaniServerStartup {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        LOGGER.info("服务端有读写事件时触发"); //当有读写事件时会被触发
+                    	ch.pipeline().addLast(new ArmaniIdleStateHandler());
                         ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 6, 4));
                         ch.pipeline().addLast(new PacketDecoder());
                         ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
+                        ch.pipeline().addLast(HeartRequestHandler.INSTANCE);
                         ch.pipeline().addLast(AuthHandler.INSTANCE);
                         ch.pipeline().addLast(ChatMessageRequestHandler.INSTANCE);
                         ch.pipeline().addLast(CreateGroupRequestHandler.INSTANCE);

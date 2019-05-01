@@ -1,16 +1,18 @@
 package io.github.armani.common.protocol.packet;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import io.github.armani.common.protocol.packet.request.ChatMessageRequestPacket;
 import io.github.armani.common.protocol.packet.request.CreateGroupRequestPacket;
 import io.github.armani.common.protocol.packet.request.GroupMessageRequestPacket;
 import io.github.armani.common.protocol.packet.request.LoginRequestPacket;
+import io.github.armani.common.protocol.packet.request.PingRequestPacket;
 import io.github.armani.common.protocol.packet.response.ChatMessageResponsetPacket;
 import io.github.armani.common.protocol.packet.response.CreateGroupResponsePacket;
 import io.github.armani.common.protocol.packet.response.GroupMessageResponsetPacket;
 import io.github.armani.common.protocol.packet.response.LoginResponsePacket;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import io.github.armani.common.protocol.packet.response.PongResponsePacket;
 
 public class PacketFactory {
 
@@ -23,6 +25,7 @@ public class PacketFactory {
         init(ChatMessageRequestPacket.class, ChatMessageResponsetPacket.class);
         init(CreateGroupRequestPacket.class, CreateGroupResponsePacket.class);
         init(GroupMessageRequestPacket.class, GroupMessageResponsetPacket.class);
+        init(PingRequestPacket.class, PongResponsePacket.class);
     }
 
 
