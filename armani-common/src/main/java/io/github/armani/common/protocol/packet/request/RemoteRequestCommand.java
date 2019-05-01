@@ -4,6 +4,8 @@ import io.github.armani.common.protocol.RemoteCommand;
 
 public interface RemoteRequestCommand extends RemoteCommand {
 
+	Byte PING = 5;
+	
     Byte LOGIN = 1;
 
     Byte ONE_2_ONE_CHAT = 2;

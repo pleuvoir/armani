@@ -1,12 +1,21 @@
 package io.github.armani.client;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.github.armani.client.command.ConsoleCommandManager;
 import io.github.armani.client.handler.ChatMessageResponsetHandler;
 import io.github.armani.client.handler.CreateGroupResponseHandler;
 import io.github.armani.client.handler.GroupMessageResponseHandler;
+import io.github.armani.client.handler.HeartBeatTimerHandler;
 import io.github.armani.client.handler.LoginResponseHandler;
 import io.github.armani.common.codec.PacketDecoder;
 import io.github.armani.common.codec.PacketEncoder;
+import io.github.armani.common.handler.ArmaniIdleStateHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -17,12 +26,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 客户端
@@ -49,9 +52,10 @@ public class ArmaniClientStartup {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        LOGGER.info("客户端启动中");
+                    	ch.pipeline().addLast(new ArmaniIdleStateHandler());
                         ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 6, 4));
                         ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(new HeartBeatTimerHandler());
                         ch.pipeline().addLast(LoginResponseHandler.INSTANCE);
                         ch.pipeline().addLast(ChatMessageResponsetHandler.INSTANCE);
                         ch.pipeline().addLast(CreateGroupResponseHandler.INSTANCE);
