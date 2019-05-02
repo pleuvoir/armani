@@ -15,21 +15,6 @@ public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginRespo
 
     public static final LoginResponseHandler INSTANCE = new LoginResponseHandler();
 
-    /**
-     * 一连接成功就发起登录
-     */
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-//        LOGGER.info("客户端开始登陆 ..");
-//
-//        LoginRequestPacket requestPacket = LoginRequestPacket.builder()
-//                .userId("100000000000645")
-//                .username("pleuvoir")
-//                .password("数字电路").build();
-//
-//        ctx.channel().writeAndFlush(requestPacket);
-    }
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LoginResponsePacket loginResponsePacket) throws Exception {
         LOGGER.info("客户端收到登录响应消息：{}", loginResponsePacket.toJSON());

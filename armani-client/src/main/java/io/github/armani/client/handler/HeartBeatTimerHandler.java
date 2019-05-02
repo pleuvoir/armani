@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.armani.common.ArmaniConst;
 import io.github.armani.common.protocol.packet.request.PingRequestPacket;
 import io.github.armani.common.protocol.packet.response.PongResponsePacket;
 import io.netty.channel.ChannelHandlerContext;
@@ -16,7 +17,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
  */
 public class HeartBeatTimerHandler extends SimpleChannelInboundHandler<PongResponsePacket> {
 
-	private static final int HEARTBEAT_INTERVAL = 5;
+
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -31,15 +32,15 @@ public class HeartBeatTimerHandler extends SimpleChannelInboundHandler<PongRespo
 	private void sendHeartPacketPeriodicity(ChannelHandlerContext ctx) {
 		ctx.executor().schedule(() -> {
 			if (ctx.channel().isActive()) {
-				ctx.channel().writeAndFlush(PingRequestPacket.INSTANCE);
-				this.sendHeartPacketPeriodicity(ctx); // 如果连接存活那么递归这个任务 数秒后继续发送，不用关闭连接
+				ctx.writeAndFlush(PingRequestPacket.INSTANCE);
+				this.sendHeartPacketPeriodicity(ctx); // 如果连接存活那么递归这个任务 数秒后继续发送，不用关闭连接池
 			}
-		}, HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
+		}, ArmaniConst.HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
 	}
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, PongResponsePacket msg) throws Exception {
-		LOG.info("接收到服务端心跳响应：{}", msg.toJSON());
+		LOG.debug("接收到服务端心跳响应：{}", msg.toJSON());
 	}
 
 	private static final Logger LOG = LoggerFactory.getLogger(HeartBeatTimerHandler.class);

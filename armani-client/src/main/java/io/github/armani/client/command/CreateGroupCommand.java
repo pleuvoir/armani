@@ -28,7 +28,7 @@ public class CreateGroupCommand implements ConsoleCommand {
                         .build();
 
         channel.writeAndFlush(createGroupRequestPacket);
-
+		log.info("创建群聊请求已发送：{}", createGroupRequestPacket.toJSON());
     }
 
 }
