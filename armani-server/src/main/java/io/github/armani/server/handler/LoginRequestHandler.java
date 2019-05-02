@@ -42,7 +42,7 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
             LOGGER.info("登录失败，原因：{}", reason);
             loginResponsePacket.setSuccess(false);
             loginResponsePacket.setReason(reason);
-            channel.writeAndFlush(loginResponsePacket);
+            ctx.writeAndFlush(loginResponsePacket);
             return;
         }
 
@@ -56,7 +56,7 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
 
         loginResponsePacket.setReason("登录成功，欢迎帅气的[" + userId + "]");
         loginResponsePacket.setSuccess(true);
-        channel.writeAndFlush(loginResponsePacket);
+        ctx.writeAndFlush(loginResponsePacket);
     }
 
     @Override

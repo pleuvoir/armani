@@ -23,7 +23,7 @@ public class HeartRequestHandler extends SimpleChannelInboundHandler<PingRequest
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("接收到客户端心跳报文：{}", msg.toJSON());
 		}
-		ctx.channel().writeAndFlush(PongResponsePacket.INSTANCE);
+		ctx.writeAndFlush(PongResponsePacket.INSTANCE);
 
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("已响应客户端心跳报文：{}", PongResponsePacket.INSTANCE.toJSON());

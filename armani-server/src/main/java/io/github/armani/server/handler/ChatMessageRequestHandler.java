@@ -25,7 +25,7 @@ public class ChatMessageRequestHandler extends SimpleChannelInboundHandler<ChatM
     protected void channelRead0(ChannelHandlerContext ctx, ChatMessageRequestPacket chat) throws Exception {
 
         if (chat.getFromUserId().equals(chat.getToUserId())) {
-            ctx.channel().writeAndFlush(ChatMessageResponsetPacket.builder().message("不能给自己发消息").build());
+            ctx.writeAndFlush(ChatMessageResponsetPacket.builder().message("不能给自己发消息").build());
             return;
         }
 

@@ -3,8 +3,7 @@ package io.github.armani.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.armani.common.codec.PacketDecoder;
-import io.github.armani.common.codec.PacketEncoder;
+import io.github.armani.common.codec.PacketCodecHandler;
 import io.github.armani.common.handler.ArmaniIdleStateHandler;
 import io.github.armani.common.utils.AttributeKeyConst;
 import io.github.armani.common.utils.SessionMember;
@@ -52,14 +51,13 @@ public class ArmaniServerStartup {
                     protected void initChannel(SocketChannel ch) throws Exception {
                     	ch.pipeline().addLast(new ArmaniIdleStateHandler());
                         ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 6, 4));
-                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(PacketCodecHandler.INSTANCE);
                         ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
                         ch.pipeline().addLast(HeartRequestHandler.INSTANCE);
                         ch.pipeline().addLast(AuthHandler.INSTANCE);
                         ch.pipeline().addLast(ChatMessageRequestHandler.INSTANCE);
                         ch.pipeline().addLast(CreateGroupRequestHandler.INSTANCE);
                         ch.pipeline().addLast(GroupMessageRequestHandler.INSTANCE);
-                        ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
 

@@ -30,10 +30,10 @@ public class ConsoleCommandManager implements ConsoleCommand {
 
         while (true) {
 
-//            if (!started.get()) {
-//                map.get("login").excute(scanner, channel);
-//                started.compareAndSet(false, true);
-//            }
+            if (!started.get()) {
+                map.get("login").excute(scanner, channel);
+                started.compareAndSet(false, true);
+            }
 
             log.info("进入指令窗口，请输入指令：当前支持的指令{}", map.keySet());
 
