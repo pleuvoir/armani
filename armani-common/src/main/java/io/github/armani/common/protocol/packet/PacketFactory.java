@@ -1,43 +1,31 @@
 package io.github.armani.common.protocol.packet;
 
+import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.github.armani.common.protocol.packet.request.ChatMessageRequestPacket;
-import io.github.armani.common.protocol.packet.request.CreateGroupRequestPacket;
-import io.github.armani.common.protocol.packet.request.GroupMessageRequestPacket;
-import io.github.armani.common.protocol.packet.request.LoginRequestPacket;
-import io.github.armani.common.protocol.packet.request.PingRequestPacket;
-import io.github.armani.common.protocol.packet.response.ChatMessageResponsetPacket;
-import io.github.armani.common.protocol.packet.response.CreateGroupResponsePacket;
-import io.github.armani.common.protocol.packet.response.GroupMessageResponsetPacket;
-import io.github.armani.common.protocol.packet.response.LoginResponsePacket;
-import io.github.armani.common.protocol.packet.response.PongResponsePacket;
-
 public class PacketFactory {
 
-    private static Map<Byte, Class<? extends Packet>> packetTable;
+    public static final Logger LOG = LoggerFactory.getLogger(PacketFactory.class);
+
+    private static Map<Byte, Class<? extends Packet>> packetTable = new ConcurrentHashMap<>();
 
     static {
-        packetTable = new ConcurrentHashMap<>();
 
-        init(LoginRequestPacket.class, LoginResponsePacket.class);
-        init(ChatMessageRequestPacket.class, ChatMessageResponsetPacket.class);
-        init(CreateGroupRequestPacket.class, CreateGroupResponsePacket.class);
-        init(GroupMessageRequestPacket.class, GroupMessageResponsetPacket.class);
-        init(PingRequestPacket.class, PongResponsePacket.class);
-    }
+        Reflections packageInfo = new Reflections("io.github.armani.common.protocol.packet");
 
-
-    private static void init(Class<? extends Packet> requestClazz, Class<? extends Packet> responseClazz) {
-        try {
-            packetTable.put(requestClazz.newInstance().getCommand(), requestClazz);
-            packetTable.put(responseClazz.newInstance().getCommand(), responseClazz);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        packageInfo.getSubTypesOf(Packet.class).forEach(packet -> {
+            try {
+                final Byte command = packet.newInstance().getCommand();
+                LOG.info("加载协议[{}]:{}", command, packet.getCanonicalName());
+                packetTable.put(command, packet);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
 
